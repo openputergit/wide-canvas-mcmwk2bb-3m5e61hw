@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paylio - Crypto Dashboard</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #b0f127;
+        }
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        .sidebar {
+            background-color: #262626;
+            transition: all 0.3s;
+        }
+        .card {
+            background-color: #262626;
+            border: 1px solid rgba(176, 241, 39, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: #1a1a1a;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .glow {
+            box-shadow: 0 0 15px rgba(176, 241, 39, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #262626;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        .nav-active {
+            background-color: rgba(176, 241, 39, 0.1);
+            color: var(--primary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-900">
+    <div class="flex">
+        <!-- Sidebar (Same as before) -->
+        <aside class="sidebar fixed h-full w-64 p-4 hidden md:block border-r border-gray-800">
+            <!-- ... Sidebar content remains unchanged ... -->
+        </aside>
+
+        <main class="flex-1 ml-0 md:ml-64 min-h-screen">
+            <!-- Header (Same as before) -->
+            <header class="bg-gray-800 border-b border-gray-700 p-4">
+                <!-- ... Header content remains unchanged ... -->
+            </header>
+
+            <!-- Tab Navigation -->
+            <div class="bg-gray-800 p-4 border-b border-gray-700">
+                <div class="flex space-x-4">
+                    <button onclick="showTab('portfolio')" class="tab-btn text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-gray-700">Portfolio</button>
+                    <button onclick="showTab('settings')" class="tab-btn text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-gray-700">Settings</button>
+                </div>
+            </div>
+
+            <!-- Portfolio Content -->
+            <div id="portfolio" class="tab-content active p-6 space-y-6">
+                <!-- Portfolio Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="card rounded-xl p-6">
+                        <h3 class="text-xl font-bold mb-4">Total Portfolio Value</h3>
+                        <div class="text-3xl font-bold text-green-400">$124,567.89</div>
+                        <div class="text-gray-400 mt-2">+12.5% (24h)</div>
+                    </div>
+                    <div class="card rounded-xl p-6">
+                        <h3 class="text-xl font-bold mb-4">Total PLO Balance</h3>
+                        <div class="text-3xl font-bold text-green-400">7,890,123 PLO</div>
+                        <div class="text-gray-400 mt-2">≈ $78,901.23</div>
+                    </div>
+                    <div class="card rounded-xl p-6">
+                        <h3 class="text-xl font-bold mb-4">24h Profit/Loss</h3>
+                        <div class="text-3xl font-bold text-green-400">+$1,234.56</div>
+                        <div class="text-gray-400 mt-2">+2.1%</div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Distribution Chart -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">Portfolio Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">Transaction History</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-left text-gray-400">
+                                    <th class="pb-4">Date</th>
+                                    <th class="pb-4">Type</th>
+                                    <th class="pb-4">Amount</th>
+                                    <th class="pb-4">Price</th>
+                                    <th class="pb-4">Total</th>
+                                    <th class="pb-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Sample transaction rows -->
+                                <tr class="border-t border-gray-700">
+                                    <td class="py-4">2024-01-15</td>
+                                    <td class="py-4 text-green-400">Buy</td>
+                                    <td class="py-4">1,000 PLO</td>
+                                    <td class="py-4">$0.0156</td>
+                                    <td class="py-4">$15.60</td>
+                                    <td class="py-4"><span class="bg-green-400 text-black px-2 py-1 rounded">Completed</span></td>
+                                </tr>
+                                <!-- Add more rows as needed -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Content -->
+            <div id="settings" class="tab-content p-6 space-y-6">
+                <!-- Account Settings -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">Account Settings</h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-gray-400 mb-2">Email Address</label>
+                            <input type="email" value="user@example.com" class="w-full bg-gray-700 rounded-lg px-4 py-2 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-2">Username</label>
+                            <input type="text" value="crypto_trader" class="w-full bg-gray-700 rounded-lg px-4 py-2 text-white">
+                        </div>
+                        <button class="bg-green-500 text-black px-6 py-2 rounded-lg">Save Changes</button>
+                    </form>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">Security Settings</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold">Two-Factor Authentication</h4>
+                                <p class="text-gray-400">Add an extra layer of security to your account</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <button class="bg-gray-700 text-white px-6 py-2 rounded-lg">Change Password</button>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">Notification Settings</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold">Email Notifications</h4>
+                                <p class="text-gray-400">Receive updates about your account via email</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold">Price Alerts</h4>
+                                <p class="text-gray-400">Get notified about significant price changes</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Portfolio distribution chart
+        const portfolioCtx = document.getElementById('portfolioChart').getContext('2d');
+        new Chart(portfolioCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['PLO', 'BTC', 'ETH', 'Other'],
+                datasets: [{
+                    data: [60, 20, 15, 5],
+                    backgroundColor: [
+                        '#b0f127',
+                        '#3b82f6',
+                        '#ec4899',
+                        '#6b7280'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#fff'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Live price updates simulation
+        setInterval(() => {
+            // Add your live price update logic here
+        }, 2000);
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
